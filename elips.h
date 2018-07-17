@@ -18,10 +18,6 @@ signals:
 protected:
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-private:
-    //int x1=5,y1=-5;
-
-
 };
 
 #endif // ELIPS_H

@@ -34,11 +34,12 @@ private:
     QVBoxLayout *body;
     QVector <QGraphicsItem *> rects1;
     QPushButton *pb;
+    QLCDNumber *number;
+    QLabel *label1,*label2;
     int x=5,y=-5;
     double x_elips, y_elips;
     void create_rect1(int amount);
-    int a=1,b=5;
-
+    int a=1,p=1,l=1,f=1,t=1;
 public slots:
     void keyPressEvent(QKeyEvent *ke);
     void start_elips();

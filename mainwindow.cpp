@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow){
     ui->setupUi(this);
     this->resize(600,600);          // Задаем размеры виджета, то есть окна
-    this->setFixedSize(600,600);    // Фиксируем размеры виджета
+    this->setFixedSize(700,700);    // Фиксируем размеры виджета
 
     QWidget *base=new QWidget;
 
@@ -26,9 +26,19 @@ MainWindow::MainWindow(QWidget *parent) :
     graphicsView->setScene(scene);  // установка графической сцены в graphicsView
     rect=new Rect();
     elips=new Elips();
+
     pb=new QPushButton("START",this);
     body->addWidget(pb);
     connect(pb, SIGNAL(clicked()), this, SLOT(timer_start()));
+
+    number = new QLCDNumber();
+    number->setSegmentStyle(QLCDNumber::Flat);
+    body->addWidget(number);
+    number->display(l);
+//    label1=new QLabel("Geme over");
+//    label2=new QLabel("YOU WIN");
+//    label1->move(200,20);
+//    label2->move(200,20);
 
     scene->setSceneRect(0,0,500,500);
     scene->addLine(0,500,500,500,QPen(Qt::black));
@@ -36,19 +46,15 @@ MainWindow::MainWindow(QWidget *parent) :
     scene->addLine(500,0,500,500,QPen(Qt::black));
     scene->addLine(0,0,500,0,QPen(Qt::black));
 
-    scene->addItem(rect);
-    rect->setPos(200,480);
-    scene->addItem(elips);
-    elips->setPos(240,470);
-
-    create_rect1(40);
-
-
-
+//    scene->addItem(rect);
+//    rect->setPos(200,480);
+//    scene->addItem(elips);
+//    elips->setPos(240,470);
+//    create_rect1(40);
 
     connect(this,SIGNAL(X1()),this,SLOT(hit()));
     connect(this,SIGNAL(X2()),this,SLOT(collision()));
-    }
+}
 MainWindow::~MainWindow(){
     delete ui;
 }
@@ -92,16 +98,37 @@ void MainWindow::keyPressEvent(QKeyEvent *ke){
 }
 
 void MainWindow::timer_start(){
-    timer= new QTimer;
-    connect(timer, SIGNAL(timeout()),SLOT(start_elips()));
-    timer->start(50);
+
+    if(p==1){
+        x=5;
+        y=-5;
+        scene->addItem(rect);
+        rect->setPos(200,480);
+        scene->addItem(elips);
+        elips->setPos(240,470);
+        create_rect1(40);
+        timer= new QTimer;
+        connect(timer, SIGNAL(timeout()),SLOT(start_elips()));
+        timer->start(50-l*10);
+        p++;
+        l++;
+        if(f==2){
+            delete label1;
+            f=1;
+        }
+        if(t==2){
+            delete label2;
+            t=1;
+        }
+        if(l==4) l=1;
+
+    }
 }
-
-
 void MainWindow::start_elips(){
     elips->moving(x,y);
     get_x();
     get_y();
+
     emit X2();
     if( x_elips==0||x_elips<0){
         x=-x;
@@ -159,19 +186,24 @@ void MainWindow::start_elips(){
             a=2;
         }
         y=-y;
-
     }
 }
 
 void MainWindow:: hit(){
-    get_x();
-    if((abs(x_elips)<abs(rect->x())||abs(x_elips)>abs(rect->x()+100))&&b==5){
+    if((abs(x_elips)<abs(rect->x())||abs(x_elips)>abs(rect->x()+100))){
         scene->removeItem(rect);
         scene->removeItem(elips);
         foreach (QGraphicsItem *rect1, rects1) {
              scene->removeItem(rect1);
         }
-        scene->addText("GAME OVER");
+        label1=new QLabel("Geme over");
+        label1->move(200,20);
+        scene->addWidget(label1);
+        timer->stop();
+        l=1;
+        number->display(l);
+        p=1;
+        f=2;
     }
 }
 
@@ -204,8 +236,15 @@ void MainWindow::collision(){
         if(rects1.size()==0){
             scene->removeItem(rect);
             scene->removeItem(elips);
-            scene->addText("YOU WIN");
-            b=3;
+
+            label2=new QLabel("YOU WIN");
+            label2->move(200,20);
+            scene->addWidget(label2);
+
+            number->display(l);
+            timer->stop();
+            p=1;
+            t=2;
         }
 
     }
