@@ -1,42 +1,23 @@
 #include "rect.h"
-#include <iostream>
 
-
-Rect::Rect(QObject *parent) :
-    QObject(parent), QGraphicsItem() {}
+Rect::Rect(QObject *parent, const int width,const int height)
+    :QObject(parent)
+    ,QGraphicsItem()
+    ,width_(width)
+    ,height_(height){
+}
 
 Rect::~Rect(){}
 
-void Rect::moving(int x1, int y1)
-{
-    if (this->isEnabled())
-        setPos(mapToParent(x1, y1));
-    if(x()==-20)
-        setX(0);
-    if(x()==420)
-        setX(400);
+QRectF Rect::boundingRect() const{
+    return QRectF(0,0,width_,height_);
 }
-
-double Rect::set_rect_x(){
-    return x();
-}
-
-
-QRectF Rect::boundingRect() const
-{
-    return QRectF(0,0, 100, 20);
-}
-
-void Rect::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    QPolygon polygon;   /// Используем класс полигона, чтобы отрисовать фигуру
-    /// Помещаем координаты точек в полигональную модель
-    polygon << QPoint(0,0) << QPoint(100,0) << QPoint(100,20) << QPoint(0, 20);
-    painter->setBrush(Qt::red);     /// Устанавливаем кисть, которой будем отрисовывать объект
-    painter->drawPolygon(polygon);  /// Рисуем полигон
+void Rect::paint(QPainter *painter,const QStyleOptionGraphicsItem *option,QWidget *widget){
+    QPolygon polygon;
+    polygon << QPoint(0,0) << QPoint(width_,0) << QPoint(width_,height_)
+            << QPoint(0,height_);
+    painter->setBrush(Qt::red);
+    painter->drawPolygon(polygon);
     Q_UNUSED(option);
     Q_UNUSED(widget);
-
 }
-
-

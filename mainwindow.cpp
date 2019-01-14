@@ -1,253 +1,77 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "rect.h"
-#include "rect1.h"
-#include <iostream>
-#include "elips.h"
-#include "math.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow){
-    ui->setupUi(this);
-    this->resize(600,600);          // Задаем размеры виджета, то есть окна
-    this->setFixedSize(700,700);    // Фиксируем размеры виджета
-
-    QWidget *base=new QWidget;
-
-    body=new QVBoxLayout(base);
-    this->setCentralWidget(base);
-
-    QGraphicsView *graphicsView = new QGraphicsView();
-    graphicsView->setEnabled(false);
-    body->addWidget(graphicsView);
-
-    scene=new QGraphicsScene();
-    graphicsView->setScene(scene);  // установка графической сцены в graphicsView
-    rect=new Rect();
-    elips=new Elips();
-
-    pb=new QPushButton("START",this);
-    body->addWidget(pb);
-    connect(pb, SIGNAL(clicked()), this, SLOT(timer_start()));
-
-    number = new QLCDNumber();
-    number->setSegmentStyle(QLCDNumber::Flat);
-    body->addWidget(number);
-    number->display(l);
-//    label1=new QLabel("Geme over");
-//    label2=new QLabel("YOU WIN");
-//    label1->move(200,20);
-//    label2->move(200,20);
-
-    scene->setSceneRect(0,0,500,500);
-    scene->addLine(0,500,500,500,QPen(Qt::black));
-    scene->addLine(0,0,0,500,QPen(Qt::black));
-    scene->addLine(500,0,500,500,QPen(Qt::black));
-    scene->addLine(0,0,500,0,QPen(Qt::black));
-
-//    scene->addItem(rect);
-//    rect->setPos(200,480);
-//    scene->addItem(elips);
-//    elips->setPos(240,470);
-//    create_rect1(40);
-
-    connect(this,SIGNAL(X1()),this,SLOT(hit()));
-    connect(this,SIGNAL(X2()),this,SLOT(collision()));
+MainWindow::MainWindow(QWidget *parent)
+    :QMainWindow(parent)
+    ,ui(new Ui::MainWindow)
+    ,highscore_(0){
+     ui->setupUi(this);
+     this->resize(1000,1000);
+     this->setFixedSize(416,346);
+     QFont font;
+     QFont font1;
+     font.setPixelSize(60);
+     font1.setPixelSize(30);
+     ui->Arcanoid_game->setFont(font);
+     ui->Highscore->setFont(font1);
+     ui->next->hide();
+     connect(ui->start,&QPushButton::clicked,this,&MainWindow::on_Start_clicked);
+     connect(ui->next,&QPushButton::clicked,this,&MainWindow::on_Next_clicked);
+     Exit();
 }
+
 MainWindow::~MainWindow(){
     delete ui;
 }
 
-void MainWindow::get_x(){
-     x_elips=elips->set_x();
-}
-void MainWindow::get_y(){
-    y_elips=elips->set_y();
-}
-
-void MainWindow::create_rect1(int amount){
-    int a=1,b=1;
-    int col=50;
-    int row=50;
-    for(int i=0;i<amount;i++){
-       Rect1 *rect1=new Rect1();
-       rect1->setPos(col * a, row * b);
-       if(a==8){
-           a=0;
-           b++;
-       }
-       a++;
-       if(b==8) b=1;
-       scene->addItem(rect1);
-       rects1.push_back(rect1);
-    }
+void MainWindow::showMainWindow(){
+    ui->next->hide();
+    ui->highscore->display(highscore_);
+    this->show();
 }
 
-
-void MainWindow::keyPressEvent(QKeyEvent *ke){
-    switch(ke->key()){
-    case Qt::Key_A:
-        rect->moving(-20, 0);
-        break;
-
-    case Qt::Key_D:
-        rect->moving(20, 0);
-        break;
-    }
+void MainWindow::showGameOver(const int current){
+    Highscore(current);
+    game_over->Show(current,highscore_);
 }
 
-void MainWindow::timer_start(){
-
-    if(p==1){
-        x=5;
-        y=-5;
-        scene->addItem(rect);
-        rect->setPos(200,480);
-        scene->addItem(elips);
-        elips->setPos(240,470);
-        create_rect1(40);
-        timer= new QTimer;
-        connect(timer, SIGNAL(timeout()),SLOT(start_elips()));
-        timer->start(50-l*10);
-        p++;
-        l++;
-        if(f==2){
-            delete label1;
-            f=1;
-        }
-        if(t==2){
-            delete label2;
-            t=1;
-        }
-        if(l==4) l=1;
-
-    }
-}
-void MainWindow::start_elips(){
-    elips->moving(x,y);
-    get_x();
-    get_y();
-
-    emit X2();
-    if( x_elips==0||x_elips<0){
-        x=-x;
-    }
-    if( x_elips==490||x_elips>490){
-        x=-x;
-    }
-    if( y_elips==0){
-        y=-y;
-    }
-    if( y_elips==470){
-        emit X1();
-        if(x_elips>rect->set_rect_x() && x_elips<rect->set_rect_x()+20 && x>0){
-            if(a==2) {
-                x=2*x;
-                a=1;
-            }
-            x=-x;
-        }
-        if(x_elips>rect->set_rect_x()+20 && x_elips<rect->set_rect_x()+40){
-            if(a==2&&x>0) {
-                x=-2*x;
-                a=1;
-            }
-            if(a==2&&x<0) {
-                x=2*x;
-                a=1;
-            }
-            if(x>0) {
-                x=-x;
-            }
-        }
-        if(x_elips>rect->set_rect_x()+80 && x_elips<rect->set_rect_x()+100&&x<0){
-            if(a==2) {
-                x=2*x;
-                a=1;
-            }
-            x=-x;
-        }
-        if(x_elips>rect->set_rect_x()+60 && x_elips<rect->set_rect_x()+80){
-            if(a==2&&x<0) {
-                x=-2*x;
-                a=1;
-            }
-            if(a==2&&x>0) {
-                x=2*x;
-                a=1;
-            }
-            if(x<0) {
-                x=-x;
-            }
-        }
-        if(x_elips>rect->set_rect_x()+40 && x_elips<rect->set_rect_x()+60&&a==1){
-            x=0.5*x;
-            a=2;
-        }
-        y=-y;
-    }
+void MainWindow::showGameWin(const int current){
+    Highscore(current);
+    game_over->Win(current,highscore_);
 }
 
-void MainWindow:: hit(){
-    if((abs(x_elips)<abs(rect->x())||abs(x_elips)>abs(rect->x()+100))){
-        scene->removeItem(rect);
-        scene->removeItem(elips);
-        foreach (QGraphicsItem *rect1, rects1) {
-             scene->removeItem(rect1);
-        }
-        label1=new QLabel("Geme over");
-        label1->move(200,20);
-        scene->addWidget(label1);
-        timer->stop();
-        l=1;
-        number->display(l);
-        p=1;
-        f=2;
-    }
+void MainWindow::on_Next_clicked(){
+    game_window->show();
+    this->close();
+    ui->highscore->display(highscore_);
 }
 
-void MainWindow::collision(){
-    foreach (QGraphicsItem *rect1, rects1) {
-        if(x_elips > rect1->x()-9&&x_elips < rect1->x()+29&&y_elips==rect1->y()+15)
-        {
-            scene->removeItem(rect1);
-            rects1.removeOne(rect1);
-            y=-y;
-        }
-        if(x_elips > rect1->x()-9&&x_elips < rect1->x()+29&&y_elips+10==rect1->y())
-        {
-            scene->removeItem(rect1);
-            rects1.removeOne(rect1);
-            y=-y;
-        }
-        if(y_elips < rect1->y()+14&&y_elips > rect1->y()-9&&x_elips+10==rect1->x())
-        {
-            scene->removeItem(rect1);
-            rects1.removeOne(rect1);
-            x=-x;
-        }
-        if(y_elips < rect1->y()+14&&y_elips > rect1->y()-9&&x_elips==rect1->x()+30)
-        {
-            scene->removeItem(rect1);
-            rects1.removeOne(rect1);
-            x=-x;
-        }
-        if(rects1.size()==0){
-            scene->removeItem(rect);
-            scene->removeItem(elips);
+void MainWindow::Show(const int current){
+    this->show();
+    Highscore(current);
+    ui->highscore->display(highscore_);
+}
 
-            label2=new QLabel("YOU WIN");
-            label2->move(200,20);
-            scene->addWidget(label2);
+void MainWindow::on_Start_clicked(){
+    game_over=new Game_over();
+    ui->next->show();
+    //delete game_window;
+    game_window=new GameWindow();
+    connect(game_window,&GameWindow::ShowMainWindow,this,&MainWindow::Show);
+    connect(game_window,&GameWindow::ShowGameOver,this,&MainWindow::showGameOver);
+    connect(game_window,&GameWindow::YouWin,this,&MainWindow::showGameWin);
+    connect(game_over,&Game_over::ShowMainWindow,this,&MainWindow::showMainWindow);
+    game_window->show();
+    this->close();
+}
 
-            number->display(l);
-            timer->stop();
-            p=1;
-            t=2;
-        }
+void MainWindow::Exit(){
+    connect(ui->exit,&QPushButton::clicked,this,&MainWindow::close);
+}
 
+void MainWindow::Highscore(const int &current){
+    if(highscore_<current){
+        highscore_=current;
     }
-
 }
 

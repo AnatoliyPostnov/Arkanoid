@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-06-28T09:06:59
+# Project created by QtCreator 2018-12-25T12:41:45
 #
 #-------------------------------------------------
 
@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Arkanoid
+TARGET = arcanoid
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -25,13 +25,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainwindow.cpp \
+    gamewindow.cpp \
+    platform.cpp \
     rect.cpp \
     elips.cpp \
-    rect1.cpp
+    block.cpp \
+    game_over.cpp
 
 HEADERS  += mainwindow.h \
+    gamewindow.h \
+    platform.h \
     rect.h \
     elips.h \
-    rect1.h
+    block.h \
+    game_over.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    gamewindow.ui \
+    game_over.ui

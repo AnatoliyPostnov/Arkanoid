@@ -4,11 +4,12 @@
 #include <QPainter>
 #include <QGraphicsScene>
 #include "rect.h"
-class Elips: public Rect{
+
+class Block: public Rect{
 public:
-    explicit Elips();
-    ~Elips() override;
+    explicit Block(const int& width,const int& height);
+    ~Block() override;
     void moving(const int& x1,const int& y1) override;
-protected:
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    int get_width();
+    int get_height();
 };
